@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 data class Sol (
@@ -46,14 +47,16 @@ data class Sol (
 
 @Composable
 fun PantallaInicial(modifier: Modifier, snackbarHostState: SnackbarHostState) {
-    var sols: MutableList<Sol> by remember { mutableStateOf(getSols().toMutableList()) }
+    var sols by remember { mutableStateOf(getSols().toMutableList()) }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier.fillMaxWidth(),
         content = {
             items(sols.size) { index ->
-                ItemSol(sols[index], snackbarHostState, sols)
+                ItemSol(sols[index], snackbarHostState, sols) {updatedSols ->
+                    sols = updatedSols.toMutableList()
+                }
             }
         }
     )
@@ -61,7 +64,12 @@ fun PantallaInicial(modifier: Modifier, snackbarHostState: SnackbarHostState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemSol(sol: Sol, snackbarHostState: SnackbarHostState, sols: MutableList<Sol>) {
+fun ItemSol(
+    sol: Sol,
+    snackbarHostState: SnackbarHostState,
+    sols: MutableList<Sol>,
+    onSolsUpdated: (List<Sol>) -> Unit
+) {
     val scope = rememberCoroutineScope()
     var showDropdownMenu by remember { mutableStateOf(false) }
 
@@ -97,7 +105,10 @@ fun ItemSol(sol: Sol, snackbarHostState: SnackbarHostState, sols: MutableList<So
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(PaddingValues(start = 5.dp))
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(PaddingValues(start = 5.dp))
+                        .fillMaxWidth()
                 )
             },
             actions = {
@@ -114,12 +125,20 @@ fun ItemSol(sol: Sol, snackbarHostState: SnackbarHostState, sols: MutableList<So
                 ) {
                     DropdownMenuItem(
                         text = { Text("Copiar") },
-                        onClick = { sols.add(sol) },
+                        onClick = {
+                            val newSols = sols.toMutableList()
+                            newSols.add(sol.copy())
+                            onSolsUpdated(newSols)
+                            showDropdownMenu = false },
                         leadingIcon = { Icon(Icons.Filled.Add, contentDescription = null) }
                     )
                     DropdownMenuItem(
                         text = { Text("Eliminar") },
-                        onClick = { sols.remove(sol)},
+                        onClick = {
+                            val newSols = sols.toMutableList()
+                            newSols.remove(sol)
+                            onSolsUpdated(newSols)
+                            showDropdownMenu = false },
                         leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                     )
                 }

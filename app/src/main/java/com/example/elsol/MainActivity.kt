@@ -5,7 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.unit.dp
 import com.example.elsol.ui.theme.ElSolTheme
 
@@ -69,20 +72,23 @@ private fun CreateBottomAppBar() {
                 )
             }
             IconButton(onClick = { likeCount++ }) {
-                if (likeCount > 0) {
-                    BadgedBox(badge =  {
-                        Badge { Text(text = likeCount.toString())}},
-                        modifier = Modifier.padding(10.dp)
-                    ) {
-                        Icon(
-                            Icons.Filled.Favorite,
-                            contentDescription = "Like"
-                        )
+                BadgedBox(
+                    modifier = Modifier.size(100.dp),
+                    badge = {
+                        if (likeCount > 0) {
+                            Badge(
+                                modifier = Modifier
+                                    .offset(x = (-16).dp, y = (7).dp)
+                            ) {
+                                Text(text = likeCount.toString())
+                            }
+                        }
                     }
-                } else {
+                ) {
                     Icon(
                         Icons.Filled.Favorite,
-                        contentDescription = "Like"
+                        contentDescription = "Like",
+                        Modifier.size(35.dp)
                     )
                 }
             }
